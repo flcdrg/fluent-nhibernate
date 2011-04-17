@@ -64,11 +64,13 @@ namespace FluentNHibernate.Automapping
                     var discriminator = new DiscriminatorMapping
                     {
                         ContainingEntityType = classType,
-                        Type = new TypeReference(typeof(string))
                     };
-                    discriminator.AddDefaultColumn(new ColumnMapping { Name = discriminatorColumn });
+                    discriminator.Set(x => x.Type, Layer.Defaults, new TypeReference(typeof(string)));
+                    var columnMapping = new ColumnMapping();
+                    columnMapping.Set(x => x.Name, Layer.Defaults, discriminatorColumn);
+                    discriminator.AddDefaultColumn(columnMapping);
 
-                    ((ClassMapping)mapping).Discriminator = discriminator;
+                    ((ClassMapping)mapping).Set(x => x.Discriminator, Layer.Defaults, discriminator);
                     discriminatorSet = true;
                 }
 
@@ -76,20 +78,20 @@ namespace FluentNHibernate.Automapping
 
                 if (!isDiscriminated)
                 {
-                    subclassMapping = new SubclassMapping(SubclassType.JoinedSubclass)
-                    {
-                        Type = inheritedClass.Type
-                    };
-                    subclassMapping.Key = new KeyMapping();
-                    subclassMapping.Key.AddDefaultColumn(new ColumnMapping { Name = mapping.Type.Name + "_id" });
+                    subclassMapping = new SubclassMapping(SubclassType.JoinedSubclass);
+                    subclassMapping.Set(x => x.Type, Layer.Defaults, inheritedClass.Type);
+                    subclassMapping.Set(x => x.Key, Layer.Defaults, new KeyMapping());
+                    var columnMapping = new ColumnMapping();
+                    columnMapping.Set(x => x.Name, Layer.Defaults, mapping.Type.Name + "_id");
+                    subclassMapping.Key.AddDefaultColumn(columnMapping);
                 }
                 else
-                    subclassMapping = new SubclassMapping(SubclassType.Subclass)
-                    {
-                        Type = inheritedClass.Type
-                    };
+                {
+                    subclassMapping = new SubclassMapping(SubclassType.Subclass);
+                    subclassMapping.Set(x => x.Type, Layer.Defaults, inheritedClass.Type);
+                }
 
-				// track separate set of properties for each sub-tree within inheritance hierarchy
+                // track separate set of properties for each sub-tree within inheritance hierarchy
             	var subclassMembers = new List<Member>(mappedMembers);
 				MapSubclass(subclassMembers, subclassMapping, inheritedClass);
 
@@ -99,7 +101,7 @@ namespace FluentNHibernate.Automapping
             }
         }
 
-        bool HasDiscriminator(ClassMappingBase mapping)
+        static bool HasDiscriminator(ClassMappingBase mapping)
         {
             if (mapping is ClassMapping && ((ClassMapping)mapping).Discriminator != null)
                 return true;
@@ -120,7 +122,7 @@ namespace FluentNHibernate.Automapping
             return mappingTypesWithLogicalParents;
         }
 
-        AutoMapType GetLogicalParent(Type type, IEnumerable<AutoMapType> availableTypes)
+        static AutoMapType GetLogicalParent(Type type, IEnumerable<AutoMapType> availableTypes)
         {
             if (type.BaseType == typeof(object) || type.BaseType == null)
                 return null;
@@ -135,8 +137,8 @@ namespace FluentNHibernate.Automapping
 
         private void MapSubclass(IList<Member> mappedMembers, SubclassMapping subclass, AutoMapType inheritedClass)
         {
-            subclass.Name = inheritedClass.Type.AssemblyQualifiedName;
-            subclass.Type = inheritedClass.Type;
+            subclass.Set(x => x.Name, Layer.Defaults, inheritedClass.Type.AssemblyQualifiedName);
+            subclass.Set(x => x.Type, Layer.Defaults, inheritedClass.Type);
             ApplyOverrides(inheritedClass.Type, mappedMembers, subclass);
             ProcessClass(subclass, inheritedClass.Type, mappedMembers);
             inheritedClass.IsMapped = true;
@@ -167,16 +169,17 @@ namespace FluentNHibernate.Automapping
 
         public ClassMapping Map(Type classType, List<AutoMapType> types)
         {
-            var classMap = new ClassMapping { Type = classType };
-
-            classMap.SetDefaultValue(x => x.Name, classType.AssemblyQualifiedName);
-            classMap.SetDefaultValue(x => x.TableName, GetDefaultTableName(classType));
+            var classMap = new ClassMapping();
+            
+            classMap.Set(x => x.Type, Layer.Defaults, classType);
+            classMap.Set(x => x.Name, Layer.Defaults, classType.AssemblyQualifiedName);
+            classMap.Set(x => x.TableName, Layer.Defaults, GetDefaultTableName(classType));
 
             mappingTypes = types;
             return (ClassMapping)MergeMap(classType, classMap, new List<Member>());
         }
 
-        private string GetDefaultTableName(Type type)
+        static string GetDefaultTableName(Type type)
         {
             var tableName = type.Name;
 
