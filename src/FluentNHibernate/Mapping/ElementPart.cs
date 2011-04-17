@@ -71,7 +71,7 @@ namespace FluentNHibernate.Mapping
             mapping.ContainingEntityType = entity;
 
             foreach (var column in Columns)
-                mapping.AddColumn(column);
+                mapping.AddColumn(Layer.Defaults, column);
 
             return mapping;
         }

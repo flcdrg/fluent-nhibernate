@@ -165,7 +165,7 @@ namespace FluentNHibernate.Mapping
             {
                 var columnMapping = new ColumnMapping();
                 columnMapping.Set(x => x.Name, Layer.Defaults, "Index");
-                indexMapping.AddDefaultColumn(columnMapping);
+                indexMapping.AddColumn(Layer.Defaults, columnMapping);
             }
 
             return (T)this;
@@ -184,7 +184,7 @@ namespace FluentNHibernate.Mapping
             {
                 var columnMapping = new ColumnMapping();
                 columnMapping.Set(x => x.Name, Layer.Defaults, "Index");
-                indexMapping.AddDefaultColumn(columnMapping);
+                indexMapping.AddColumn(Layer.Defaults, columnMapping);
             }
 
             return (T)this;
@@ -384,7 +384,7 @@ namespace FluentNHibernate.Mapping
             {
                 var columnMapping = new ColumnMapping();
                 columnMapping.Set(x => x.Name, Layer.Defaults, indexColumn);
-                indexMapping.AddDefaultColumn(columnMapping);
+                indexMapping.AddColumn(Layer.Defaults, columnMapping);
             }
 
             return (T)this;
