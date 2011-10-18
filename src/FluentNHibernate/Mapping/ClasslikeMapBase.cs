@@ -240,7 +240,15 @@ namespace FluentNHibernate.Mapping
         /// <returns>Component reference builder</returns>
         public virtual ReferenceComponentPart<TComponent> Component<TComponent>(Expression<Func<T, TComponent>> member)
         {
-            var part = new ReferenceComponentPart<TComponent>(member.ToMember(), typeof(T));
+#pragma warning disable 612,618
+            return Component<TComponent>(member.ToMember());
+#pragma warning restore 612,618
+        }
+
+        [Obsolete("Do not call this method. Implementation detail mistakenly made public. Will be made private in next version.")]
+        protected virtual ReferenceComponentPart<TComponent> Component<TComponent>(Member property)
+        {
+            var part = new ReferenceComponentPart<TComponent>(property, typeof(T));
 
             providers.Components.Add(part);
 
@@ -292,7 +300,7 @@ namespace FluentNHibernate.Mapping
         {
             var part = new ComponentPart<TComponent>(typeof(T), property);
 
-            action(part);
+            if (action != null) action(part);
 
             providers.Components.Add(part);
 

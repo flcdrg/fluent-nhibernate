@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using FluentNHibernate.Automapping;
 using FluentNHibernate.MappingModel;
 using FluentNHibernate.MappingModel.ClassBased;
@@ -49,6 +47,5 @@ namespace FluentNHibernate.Testing.AutoMapping.Overrides
             ClassMapping classMapping = hibernateMapping.Classes.First();
             classMapping.Filters.Single().Name.ShouldEqual("filter1");
         }
-
     }
 }
