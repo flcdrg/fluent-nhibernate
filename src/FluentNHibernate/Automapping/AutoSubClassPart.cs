@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using FluentNHibernate.Mapping;
 using FluentNHibernate.Mapping.Providers;
 using FluentNHibernate.MappingModel;
 using FluentNHibernate.MappingModel.ClassBased;
+using FluentNHibernate.Utils;
 
 namespace FluentNHibernate.Automapping
 {
@@ -11,7 +13,7 @@ namespace FluentNHibernate.Automapping
     public class AutoSubClassPart<T> : SubClassPart<T>, IAutoClasslike
     {
         private readonly MappingProviderStore providers;
-        private readonly IList<Member> membersMapped = new List<Member>();
+        private readonly IList<Member> mappedMembers = new List<Member>();
 
         public AutoSubClassPart(DiscriminatorPart parent, string discriminatorValue)
             : this(parent, discriminatorValue, new MappingProviderStore())
@@ -38,41 +40,43 @@ namespace FluentNHibernate.Automapping
 
         protected override OneToManyPart<TChild> HasMany<TChild>(Member property)
         {
-            membersMapped.Add(property);
+            mappedMembers.Add(property);
             return base.HasMany<TChild>(property);
         }
 
         protected override PropertyPart Map(Member property, string columnName)
         {
-            membersMapped.Add(property);
+            mappedMembers.Add(property);
             return base.Map(property, columnName);
         }
 
         protected override ManyToOnePart<TOther> References<TOther>(Member property, string columnName)
         {
-            membersMapped.Add(property);
+            mappedMembers.Add(property);
             return base.References<TOther>(property, columnName);
         }
 
         protected override ManyToManyPart<TChild> HasManyToMany<TChild>(Member property)
         {
-            membersMapped.Add(property);
+            mappedMembers.Add(property);
             return base.HasManyToMany<TChild>(property);
+        }
+
+        protected override ReferenceComponentPart<TComponent> Component<TComponent>(Member property)
+        {
+            mappedMembers.Add(property);
+            return base.Component<TComponent>(property);
         }
 
         protected override ComponentPart<TComponent> Component<TComponent>(Member property, Action<ComponentPart<TComponent>> action)
         {
-            membersMapped.Add(property);
-
-            if (action == null)
-                action = c => { };
-
+            mappedMembers.Add(property);
             return base.Component(property, action);
         }
 
         protected override OneToOnePart<TOther> HasOne<TOther>(Member property)
         {
-            membersMapped.Add(property);
+            mappedMembers.Add(property);
             return base.HasOne<TOther>(property);
         }
 
@@ -128,7 +132,7 @@ namespace FluentNHibernate.Automapping
 
         public IEnumerable<Member> GetIgnoredProperties()
         {
-            return membersMapped;
+            return mappedMembers;
         }
     }
 #pragma warning restore 612,618,672

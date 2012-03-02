@@ -15,10 +15,15 @@ namespace FluentNHibernate.Automapping
             this.mappedMembers = mappedMembers;
         }
 
+        protected override ReferenceComponentPart<TComponent> Component<TComponent>(Member property)
+        {
+            mappedMembers.Add(property);
+            return base.Component<TComponent>(property);
+        }
+
         protected override ComponentPart<TComponent> Component<TComponent>(Member property, Action<ComponentPart<TComponent>> action)
         {
             mappedMembers.Add(property);
-
             return base.Component(property, action);
         }
 
