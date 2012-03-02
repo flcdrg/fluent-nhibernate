@@ -99,12 +99,12 @@ namespace FluentNHibernate.Automapping
                 }
 
                 // track separate set of properties for each sub-tree within inheritance hierarchy
-            	var subclassMembers = new List<Member>(mappedMembers);
-				MapSubclass(subclassMembers, subclassMapping, inheritedClass);
+                var subclassMembers = new List<Member>(mappedMembers);
+                MapSubclass(subclassMembers, subclassMapping, inheritedClass);
 
                 mapping.AddSubclass(subclassMapping);
 
-				MergeMap(inheritedClass.Type, subclassMapping, subclassMembers);
+                MergeMap(inheritedClass.Type, subclassMapping, subclassMembers);
             }
         }
 

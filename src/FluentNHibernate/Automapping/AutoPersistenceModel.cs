@@ -214,11 +214,11 @@ namespace FluentNHibernate.Automapping
         private Type GetTypeToMap(Type type)
         {
             while (ShouldMapParent(type))
-			{
-				type = type.BaseType;
-			}
+            {
+                type = type.BaseType;
+            }
 
-			return type;
+            return type;
         }
 
         private bool ShouldMapParent(Type type)
@@ -290,12 +290,12 @@ namespace FluentNHibernate.Automapping
             // if we haven't found a map yet then try to find a map of the
             // base type to merge if not a concrete base type
 
-			if (type.BaseType != typeof(object) && !cfg.IsConcreteBaseType(type.BaseType))
-			{
-				return FindMapping(type.BaseType);
-			}
+            if (type.BaseType != typeof(object) && !cfg.IsConcreteBaseType(type.BaseType))
+            {
+                return FindMapping(type.BaseType);
+            }
 
-			return null;
+            return null;
         }
 
         /// <summary>
@@ -317,11 +317,11 @@ namespace FluentNHibernate.Automapping
             return this;
         }
 
-		public AutoPersistenceModel AddFilter<TFilter>() where TFilter : IFilterDefinition
-		{
-    		Add(typeof(TFilter));
-			return this;
-		}
+        public AutoPersistenceModel AddFilter<TFilter>() where TFilter : IFilterDefinition
+        {
+            Add(typeof(TFilter));
+            return this;
+        }
 
         internal void AddOverride(Type type, Action<object> action)
         {
@@ -345,44 +345,44 @@ namespace FluentNHibernate.Automapping
             return this;
         }
 
-		/// <summary>
-		/// Adds an IAutoMappingOverride reflectively
-		/// </summary>
-		/// <param name="overrideType">Override type, expected to be an IAutoMappingOverride</param>
-		public void Override(Type overrideType)
-		{
-			Type overrideInterface = overrideType.GetInterfaces()
-				.Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IAutoMappingOverride<>) && x.GetGenericArguments().Length > 0)
-				.FirstOrDefault();
-			if (overrideInterface != null)
-			{
-				Type entityType = overrideInterface.GetGenericArguments().First();
-				Type autoMappingType = typeof(AutoMapping<>).MakeGenericType(entityType);
-				AddOverride(entityType, x =>
-				{
-					if (x.GetType().IsAssignableFrom(autoMappingType))
-					{
-						var overrideInstance = Activator.CreateInstance(overrideType);
+        /// <summary>
+        /// Adds an IAutoMappingOverride reflectively
+        /// </summary>
+        /// <param name="overrideType">Override type, expected to be an IAutoMappingOverride</param>
+        public void Override(Type overrideType)
+        {
+            Type overrideInterface = overrideType.GetInterfaces()
+                .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IAutoMappingOverride<>) && x.GetGenericArguments().Length > 0)
+                .FirstOrDefault();
+            if (overrideInterface != null)
+            {
+                Type entityType = overrideInterface.GetGenericArguments().First();
+                Type autoMappingType = typeof(AutoMapping<>).MakeGenericType(entityType);
+                AddOverride(entityType, x =>
+                {
+                    if (x.GetType().IsAssignableFrom(autoMappingType))
+                    {
+                        var overrideInstance = Activator.CreateInstance(overrideType);
 
-						MethodInfo overrideHelperMethod = typeof(AutoPersistenceModel)
-							.GetMethod("OverrideHelper", BindingFlags.NonPublic | BindingFlags.Instance);
-						
-						if (overrideHelperMethod != null)
-						{
-							overrideHelperMethod
-								.MakeGenericMethod(entityType)
-								.Invoke(this, new[] {x, overrideInstance});
-						}
-					}
-				});
-			}
-		}
+                        MethodInfo overrideHelperMethod = typeof(AutoPersistenceModel)
+                            .GetMethod("OverrideHelper", BindingFlags.NonPublic | BindingFlags.Instance);
+                        
+                        if (overrideHelperMethod != null)
+                        {
+                            overrideHelperMethod
+                                .MakeGenericMethod(entityType)
+                                .Invoke(this, new[] {x, overrideInstance});
+                        }
+                    }
+                });
+            }
+        }
 
-		//called reflectively from method above
-		private void OverrideHelper<T>(AutoMapping<T> x, IAutoMappingOverride<T> mappingOverride)
-		{
-			mappingOverride.Override(x);
-		}
+        //called reflectively from method above
+        private void OverrideHelper<T>(AutoMapping<T> x, IAutoMappingOverride<T> mappingOverride)
+        {
+            mappingOverride.Override(x);
+        }
 
         /// <summary>
         /// Override all mappings.
