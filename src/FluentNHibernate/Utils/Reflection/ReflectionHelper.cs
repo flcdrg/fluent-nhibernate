@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -11,7 +12,20 @@ namespace FluentNHibernate.Utils.Reflection
     {
         public static Member GetMember<TModel, TReturn>(Expression<Func<TModel, TReturn>> expression)
         {
-            return GetMember(expression.Body);
+            Member member = GetMember(expression.Body);
+
+            if (member.DeclaringType.IsInterface)
+            {
+                // find implementation of member on model
+                var modelType = typeof(TModel);
+                var matchingMembers = modelType.GetMember(member.Name);
+
+                if (matchingMembers.Any())
+                {
+                    member = matchingMembers.First().ToMember();
+                }
+            }
+            return member;
         }
 
         public static Member GetMember<TModel>(Expression<Func<TModel, object>> expression)
@@ -72,7 +86,7 @@ namespace FluentNHibernate.Utils.Reflection
 
                 if (nextOperand.NodeType != ExpressionType.Convert)
                     throw new ArgumentException("Expression not supported", "expression");
-	            
+                
                 var unaryExpression = (UnaryExpression)nextOperand;
                 desiredConversionType = unaryExpression.Type;
                 nextOperand = unaryExpression.Operand;
