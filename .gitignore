@@ -9,12 +9,8 @@ dist
 output
 build
 
-*.csproj.user
-
-*.resharper.user
-
 *.resharper
-
+*.dotcover
 *.suo
 
 *.cache
@@ -23,3 +19,4 @@ build
 
 *.swp
 TestResult.xml
+*.user
