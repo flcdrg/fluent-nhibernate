@@ -493,7 +493,23 @@ namespace FluentNHibernate
             if (type.BaseType != null && type.BaseType != typeof(object))
                 type.BaseType.GetInstanceMembers().Each(x => members.Add(x));
 
-            return members;
+            // Remove any identically named members that were added from deeper in the inheritance hierarchy (because they have been overridden)
+            IEnumerable<Member> distinct = members.Distinct(new MemberComparer());
+            return distinct;
+            //return members;
+        }
+    }
+
+    internal class MemberComparer : IEqualityComparer<Member>
+    {
+        public bool Equals(Member x, Member y)
+        {
+            return x.Name.Equals(y.Name);
+        }
+
+        public int GetHashCode(Member obj)
+        {
+            return obj.Name.GetHashCode();
         }
     }
 
